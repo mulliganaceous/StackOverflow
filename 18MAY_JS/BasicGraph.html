@@ -1,0 +1,41 @@
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>Basic Graph</title>
+    <script src="./node_modules/vis/dist/vis.js"></script>
+    <link href="./node_modules/vis/dist/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <div style="font-size:20px">
+        A basic vis.js chart.
+    </div>
+    <div id="visualization"></div>
+    <script type="text/javascript">
+        var container = document.getElementById('visualization');
+
+        var items = [
+            {x: '2014-06-11', y: 10},
+            {x: '2014-06-12', y: 25},
+            {x: '2014-06-13', y: 30},
+            {x: '2014-06-14', y: 10},
+            {x: '2014-06-15', y: 15},
+            {x: '2014-06-16', y: 30}
+        ];
+    
+        var dataset = new vis.DataSet(items);
+        // Hide points if enough data points
+        function showPoints() {
+            return items.length > 5 ? false : true;
+        }
+        var options = {
+            start: '2014-06-10',
+            end: '2014-06-18',
+            drawPoints: false
+        };
+
+        var graph2d = new vis.Graph2d(container, dataset, options);
+    </script>
+    
+</body>
+</html>
