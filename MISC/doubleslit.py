@@ -17,8 +17,8 @@ def init_inputspace(width, height, init_x, init_y):
     xspace = np.broadcast_to(np.array(range(width)), (height, width))
     yspace = np.broadcast_to(np.array(range(height)), (width, height)).transpose()
     inputs = np.empty([height, width, 2])
-    inputs[:,:,0] =  xspace + init_x
-    inputs[:,:,1] = -yspace + (height - 1)/2
+    inputs[:,:,0] = -yspace + init_y
+    inputs[:,:,1] = xspace + init_x
     return inputs
 
 def coordinates(inputspace, x, y):
@@ -27,11 +27,13 @@ def coordinates(inputspace, x, y):
     return inputspace[-y, x]
 
 def toindex(inputspace, x, y):
-    indices = np.round([x+inputspace[0,0,0], y+inputspace[0,0,1]]).astype(int).transpose()
-    indices = indices[indices[:,0] >= 0]
-    indices = indices[indices[:,0] < 256]
-    indices = indices[indices[:,1] >= 0]
-    indices = indices[indices[:,1] < 256]
+    indices = np.round([-y+inputspace[0,0,1],x+inputspace[0,0,0]]).astype(int).transpose()
+    """
+    indices = indices[indices[:,:,0] >= 0]
+    indices = indices[indices[:,:,0] < inputspace.shape[0]-1]
+    indices = indices[indices[:,:,1] >= 0]
+    indices = indices[indices[:,:,1] < inputspace.shape[1]-1]
+    """
     return indices
 
 def constant(inputspace, k):
@@ -57,19 +59,16 @@ def traceray(inputspace, x, y, wl, count):
     while k < distance:
         indices = toindex(inputspace, position[:,0], position[:,1])
         print(indices.transpose())
-        if indices == []:
-            k = distance
-        else:
-            outputspace[indices.transpose()] += 1000
-            position = position + direction
+        position = position + direction
         k += 1
     return outputspace
 
 # CREATE DIFFRACTION
 inputspace = init_inputspace(WINDOW_W, WINDOW_H, 0, (WINDOW_H - 1)/2)
 outputspace = constant(inputspace, 0)
-outputspace += circularwave(inputspace, 16, -64, 4)
-outputspace += circularwave(inputspace, 16, 64, 4)
+outputspace += circularwave(inputspace, 16, -32, 16)
+outputspace += circularwave(inputspace, 16, 32, 16)
+outputspace += traceray(inputspace, 16, -32, 1, 3)
 
 plt.imshow(outputspace, \
            extent=[np.min(inputspace[:,:,0]), np.max(inputspace[:,:,0]), np.min(inputspace[:,:,1]), np.max(inputspace[:,:,1])], \
